@@ -1,0 +1,49 @@
+# Define enums for the unit of measurements if required
+enum Unit {
+    POUNDS
+    GALLONS
+    TREES
+    TONS
+}
+
+enum ReductionCommitmentEnum {
+    WILL_DO
+    WILL_NOT_DO
+    ALREADY_DONE
+}
+
+input ConfigureInitialParametersInput {
+    numberOfPeoplehousehold: Int
+    zipCode: String
+}
+
+input EmissionReportInput {
+    homeEnergyParameters: CalculateHomeEnergyInput
+    transportationParameters: CalculateTransportationInput
+    wasteParameters: CalculateWasteInput
+}
+
+type ConfigureInitialParametersOutput {
+    carbonFootprintSummary: CarbonFootprintSummary
+}
+
+type CarbonFootprintSummary {
+  currentTotalEmission: Float
+  currentTotalEmissionAfterPlannedActions: Float
+  usAverage: Float
+}
+
+type CalculateEmissionsReportOutput {
+    homeEnergySumary: CarbonFootprintSummary
+    transportationSumary: CarbonFootprintSummary
+    wasteSumary: CarbonFootprintSummary
+    totalSumary: CarbonFootprintSummary
+}
+
+type Mutation {
+    configureInitialParameters(input: ConfigureInitialParametersInput!): ConfigureInitialParametersOutput
+}
+
+type Mutation {
+    generateEmissionsReport(input: EmissionReportInput!): CalculateEmissionsReportOutput
+}

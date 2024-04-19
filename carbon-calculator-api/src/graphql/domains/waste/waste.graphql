@@ -1,0 +1,37 @@
+# waste.graphql
+
+input CalculateWasteInput {
+    recycleAluminumSteelCans: Boolean
+    recyclePlastic: Boolean
+    recycleGlass: Boolean
+    recycleNewspaper: Boolean
+    recycleMagazines: Boolean
+    reduction: WasteReductonInput
+}
+
+input WasteReductonInput {
+    recycleAluminumSteelCans: Boolean
+    recyclePlastic: Boolean
+    recycleGlass: Boolean
+    recycleNewspaper: Boolean
+    recycleMagazines: Boolean  
+}
+
+type Waste {
+    wasteRecycling: Float
+    emissionAfterRecycling: Float
+    wasteReduction: Float
+}
+
+type CalculateWasteEmissionOutput {
+    waste: Waste    
+    carbonFootprintSummary: CarbonFootprintSummary
+}
+
+type Mutation {
+    calculateWasteEmission(input: CalculateWasteInput!): CalculateWasteEmissionOutput 
+}
+
+type Query {
+    getAverageWaste(numberOfPersons: Int!): Float 
+}

@@ -1,0 +1,65 @@
+enum HomeEmissionUnit {
+    DOLLARS
+    THOUSAND_CUBIC_FEET
+    THERMS,
+    KWH,
+    GALLONS
+}
+
+input CalculateHomeEnergyInput  {
+    naturalGasAmount: Float
+    naturalGasUnit: HomeEmissionUnit
+    electricityAmount: Float
+    electricityUnit: HomeEmissionUnit
+    electricityGreenPercentage: Float
+    fuelOilAmount: Float
+    fuelOilUnit: HomeEmissionUnit
+    propaneAmount: Float
+    propaneUnit: HomeEmissionUnit
+    reductions: HomeEnergyReductionInput
+}
+
+input HomeEnergyReductionInput {
+    reduceThermostatSummerDegrees: Float
+    reduceThermostatWinterNightsDegrees: Float
+    ledBulbsReplacementCount: Int
+    enablePowerManagementOnPCCommitment: ReductionCommitmentEnum
+    greenPowerUsageIncrease: Float
+    washingClothesColdWaterCommitment: ReductionCommitmentEnum
+    washingClothesColdWaterLoadsPerWeek: Int
+    lineDryClothingCommitment: ReductionCommitmentEnum
+    lineDryClothingPercentage: Float
+    energyStarRefrigeratorCommitment: ReductionCommitmentEnum
+    energyStarFurnaceCommitment: ReductionCommitmentEnum
+    energyStarWindowsCommitment: ReductionCommitmentEnum
+}
+
+type HomeEnergyReduction {
+    reduceThermostatSummer: Float
+    reduceThermostatWinterNights: Float
+    ledBulbsReplacement: Float
+    enablePowerManagementOnPC: Float
+    greenPowerUsageIncrease: Float
+    washingClothesColdWater: Float
+    lineDryClothing: Float
+    energyStarRefrigerator: Float
+    energyStarFurnace: Float
+    energyStarWindows: Float
+}
+
+type HomeEnergyEmission {
+    naturalGas: Float
+    electricity: Float
+    fuelOil: Float
+    propane: Float
+    reductions: HomeEnergyReduction
+}
+
+type CalculateHomeEnergyEmissionOutput {
+    homeEnergyEmission: HomeEnergyEmission
+    carbonFootprintSummary: CarbonFootprintSummary
+}
+
+type Mutation {
+    calculateHomeEnergyEmission(input: CalculateHomeEnergyInput!): CalculateHomeEnergyEmissionOutput
+}

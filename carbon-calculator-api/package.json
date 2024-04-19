@@ -1,0 +1,42 @@
+{
+  "name": "carbon-calculator-api",
+  "version": "1.0.0",
+  "description": "carbon calculator excercise - API",
+  "main": "src/index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "jest",
+    "test:integration": "jest test/integration",
+    "test:unit": "jest test/unit/services",
+    "start": "node src/index",
+    "dev": "nodemon your-app.js",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@graphql-tools/load": "^8.0.2",
+    "@graphql-tools/load-files": "^7.0.0",
+    "@graphql-tools/merge": "^9.0.3",
+    "apollo-server-express": "^3.13.0",
+    "apollo-server-testing": "^2.25.3",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "express-graphql": "^0.12.0",
+    "graphql": "^15.8.0",
+    "jest": "^29.7.0",
+    "supertest": "^6.3.4"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.0.2",
+    "@eslint/js": "^9.0.0",
+    "eslint": "^8.57.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.29.1",
+    "globals": "^15.0.0",
+    "nodemon": "^3.1.0"
+  }
+}

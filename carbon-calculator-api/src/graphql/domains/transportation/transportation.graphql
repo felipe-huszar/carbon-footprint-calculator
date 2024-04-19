@@ -1,0 +1,36 @@
+enum MileageUnit {
+    MILES_PER_YEAR
+    MILES_PER_WEEK
+}
+
+input VehicleInput {
+    milesDriven: Float
+    mileageUnit: MileageUnit
+    gasMileage: Float
+    reduction: VehicleReductionInput
+}
+
+input VehicleReductionInput {
+    reducedMiles: Float
+    reducedMilesUnit: MileageUnit
+    milesperGaloonVehicleReplacement: Float
+}
+
+input CalculateTransportationInput {    
+    vehicles: [VehicleInput]
+}
+type VehicleReduction {
+    milesDriven: Float
+    replacedVehicle: Float    
+}
+
+type CalculateTransportationEmissionOutput {
+    vehicleEmissions: [Float]
+    reductions: [VehicleReduction]
+    carbonFootprintSummary: CarbonFootprintSummary
+}
+
+# Domain-specific mutations
+type Mutation {
+    calculateTransportationEmission(input: CalculateTransportationInput): CalculateTransportationEmissionOutput
+}
