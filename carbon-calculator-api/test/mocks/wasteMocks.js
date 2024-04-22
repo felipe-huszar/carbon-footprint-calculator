@@ -1,16 +1,29 @@
-const defaultCalculationMock = { 
+const defaultCalculationMock = {
     recycleAluminumSteelCans: true,
     recyclePlastic: true,
-    recycleGlass: true,
-    recycleNewspaper: true,
-    recycleMagazines: true,
+    recycleGlass: false,
+    recycleNewspaper: false,
+    recycleMagazines: false,
     reduction: {
-        recycleAluminumSteelCans: true,
-        recyclePlastic: true,
+        recycleAluminumSteelCans: false,
+        recyclePlastic: false,
         recycleGlass: true,
         recycleNewspaper: true,
         recycleMagazines: true
     }
 }
 
-module.exports = { defaultCalculationMock };
+const defaultCalculationReturnMock = {    
+    waste: {
+        wasteRecycling: 126,
+        emissionAfterRecycling: 1131,
+        wasteReduction: 332,
+    },
+    carbonFootprintSummary: {
+        currentTotalEmission: 1131,
+        currentTotalEmissionAfterPlannedActions: 799,
+        usAverage: 5600,
+    },    
+};
+
+module.exports = { defaultCalculationMock, defaultCalculationReturnMock };

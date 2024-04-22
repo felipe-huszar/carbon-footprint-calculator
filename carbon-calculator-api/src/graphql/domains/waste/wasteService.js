@@ -4,10 +4,17 @@ const  carbonFootprintRepository  = require('../../../infrastructure/repository/
 const  utils  = require('../../../utils/utils');
 
 async function calculateEmissions(input) {
-    
+    const numberOfPeoplehousehold = carbonFootprintRepository.getInitialParameters().numberOfPeoplehousehold;
+
+    if (!numberOfPeoplehousehold) {
+        throw new Error('Initial parameters have not been configured');
+    }
+
     if (utils.hasNegativeValues(input)) {
         throw new Error('Input data cannot have negative numbers');
     }
+
+    await validateWasteInput(input);
     
     const factors = await fetchEmissionFactors();
 
@@ -15,7 +22,7 @@ async function calculateEmissions(input) {
         totalEmission,        
         totalReductionsDone,
         totalReductionsPlanned 
-    } = await calculateWasteEmissions(input, factors.waste);    
+    } = await calculateWasteEmissions(input, factors.waste, numberOfPeoplehousehold);    
 
     const totalEmissionDone = totalEmission - totalReductionsDone;
     const totalEmissionPlanned = totalEmissionDone - totalReductionsPlanned;
@@ -37,9 +44,7 @@ async function calculateEmissions(input) {
     };
 }
 
-async function calculateWasteEmissions(input, factors) {
-    const numberOfPersons = carbonFootprintRepository.getInitialParameters().numberOfPeoplehousehold;
-    
+async function calculateWasteEmissions(input, factors, numberOfPersons) {        
     let totalHouseholdEmission = factors.standardWasteEmission.perPerson * numberOfPersons;    
     let totalReductionsDone = 0;
     let totalReductionsPlanned = 0;
@@ -70,6 +75,7 @@ async function calculateWasteEmissions(input, factors) {
         totalReductionsPlanned += factors.reduction.recyclingNewspaper
     }
         
+    totalReductionsDone = totalReductionsDone * numberOfPersons;
     const totalEmission = totalHouseholdEmission - totalReductionsDone;    
 
     return {
@@ -95,6 +101,29 @@ async function configureInitialWasteEmission(numberOfPeoplehousehold) {
     carbonFootprintRepository.setSectionSummary(CarbonFootprintCategory.WASTE, sumaryWaste);
 }
 
+async function validateWasteInput(input) {
+    const invalidCombinationMessage = 'Invalid input data. Cannot recycle and reduce the same item';
+    
+    if (input.recycleAluminumSteelCans && input.reduction.recycleAluminumSteelCans) {
+        throw new Error(invalidCombinationMessage);
+    }
+
+    if (input.recyclePlastic && input.reduction.recyclePlastic) {
+        throw new Error(invalidCombinationMessage);
+    }
+
+    if (input.recycleGlass && input.reduction.recycleGlass) {
+        throw new Error(invalidCombinationMessage);
+    }
+
+    if (input.recycleNewspaper && input.reduction.recycleNewspaper) {
+        throw new Error(invalidCombinationMessage);
+    }
+
+    if (input.recycleMagazines && input.reduction.recycleMagazines) {
+        throw new Error(invalidCombinationMessage);
+    }
+}
 
 module.exports = {
     calculateEmissions,

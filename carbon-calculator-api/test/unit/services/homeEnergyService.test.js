@@ -10,7 +10,8 @@ jest.mock('../../../src/infrastructure/client/emissionFactorsClient', () => ({
 }));
 
 jest.mock('../../../src/infrastructure/repository/carbonFootprintRepository', () => ({
-    saveSectionSummary: jest.fn(),
+    getInitialParameters: jest.fn().mockReturnValue({ numberOfPeoplehousehold: 1, zipCode: '11111' }),
+    setSectionSummary: jest.fn(),
     getTotalSummary: jest.fn(),
 }));
 
@@ -27,19 +28,19 @@ describe('Home Energy Service', () => {
         const expectOutput = homeEnergyMocks.defaultCalculationReturnMock;
         expectOutput.carbonFootprintSummary = mockSummary;
         
-        emissionFactorsClient.fetchEmissionFactors.mockResolvedValue(mockEmissionFactors);        
+        emissionFactorsClient.fetchEmissionFactors.mockResolvedValue(mockEmissionFactors); 
         carbonFootprintRepository.getTotalSummary.mockReturnValue(mockSummary);
         
         const result = await homeEnergyService.calculateEmissions(input);
         
         expect(emissionFactorsClient.fetchEmissionFactors).toHaveBeenCalledTimes(1);
-        expect(carbonFootprintRepository.saveSectionSummary).toHaveBeenCalledTimes(1);
+        expect(carbonFootprintRepository.setSectionSummary).toHaveBeenCalledTimes(1);
         expect(carbonFootprintRepository.getTotalSummary).toHaveBeenCalledTimes(1);
         
         expect(result).toEqual(expectOutput);
     });
 
-    it('calculates emissions correctly', async () => {
+    it('generates an error when input has negative numbers', async () => {
         const input = homeEnergyMocks.defaultCalculationMock;
         input.electricityAmount = -100;
         const mockEmissionFactors = emissionFactorsMocks.emissionFactors;    
@@ -52,10 +53,9 @@ describe('Home Energy Service', () => {
         carbonFootprintRepository.getTotalSummary.mockReturnValue(mockSummary);
         
         await expect(homeEnergyService.calculateEmissions(input)).rejects.toThrow("Input data cannot have negative numbers");
-        
-        // Ensure that no further methods are called when input is invalid
+                
         expect(emissionFactorsClient.fetchEmissionFactors).not.toHaveBeenCalled();
-        expect(carbonFootprintRepository.saveSectionSummary).not.toHaveBeenCalled();
+        expect(carbonFootprintRepository.setSectionSummary).not.toHaveBeenCalled();
         expect(carbonFootprintRepository.getTotalSummary).not.toHaveBeenCalled();
     });    
 });

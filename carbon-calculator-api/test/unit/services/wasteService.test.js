@@ -1,7 +1,7 @@
-const homeEnergyService = require('../../../src/graphql/domains/homeEnergy/homeEnergyService');
+const wasteService = require('../../../src/graphql/domains/waste/wasteService');
 const emissionFactorsClient = require('../../../src/infrastructure/client/emissionFactorsClient');
 const carbonFootprintRepository = require('../../../src/infrastructure/repository/carbonFootprintRepository');
-const homeEnergyMocks = require('../../mocks/homeEnergyMocks');
+const wasteMocks = require('../../mocks/wasteMocks');
 const emissionFactorsMocks = require('../../mocks/emissionFactorsMocks');
 const summaryMocks = require('../../mocks/summaryMocks');
 
@@ -10,27 +10,29 @@ jest.mock('../../../src/infrastructure/client/emissionFactorsClient', () => ({
 }));
 
 jest.mock('../../../src/infrastructure/repository/carbonFootprintRepository', () => ({
-    saveSectionSummary: jest.fn(),
+    getInitialParameters: jest.fn().mockReturnValue({ numberOfPeoplehousehold: 1, zipCode: '11111' }),
+    setSectionSummary: jest.fn(),
     getTotalSummary: jest.fn(),
 }));
 
-describe('Home Energy Service', () => {
+describe('Waste Service', () => {
+    const input = wasteMocks.defaultCalculationMock;
+    const mockEmissionFactors = emissionFactorsMocks.emissionFactors;    
+    const mockSummary = summaryMocks.carbonFootprintSummary;
+    
     beforeEach(() => {        
+        jest.spyOn(console, 'error').mockImplementation(() => {});
         jest.clearAllMocks();
     });
 
-    it('calculates emissions correctly', async () => {
-        const input = homeEnergyMocks.defaultCalculationMock;
-        const mockEmissionFactors = emissionFactorsMocks.emissionFactors;    
-        const mockSummary = summaryMocks.carbonFootprintSummary;
-
-        const expectOutput = homeEnergyMocks.defaultCalculationReturnMock;
+    it('calculates emissions correctly', async () => {                
+        const expectOutput = wasteMocks.defaultCalculationReturnMock;
         expectOutput.carbonFootprintSummary = mockSummary;
         
         emissionFactorsClient.fetchEmissionFactors.mockResolvedValue(mockEmissionFactors);        
         carbonFootprintRepository.getTotalSummary.mockReturnValue(mockSummary);
         
-        const result = await homeEnergyService.calculateEmissions(input);
+        const result = await wasteService.calculateEmissions(input);
         
         expect(emissionFactorsClient.fetchEmissionFactors).toHaveBeenCalledTimes(1);
         expect(carbonFootprintRepository.setSectionSummary).toHaveBeenCalledTimes(1);
@@ -39,23 +41,24 @@ describe('Home Energy Service', () => {
         expect(result).toEqual(expectOutput);
     });
 
-    it('calculates emissions correctly', async () => {
-        const input = homeEnergyMocks.defaultCalculationMock;
-        input.electricityAmount = -100;
-        const mockEmissionFactors = emissionFactorsMocks.emissionFactors;    
-        const mockSummary = summaryMocks.carbonFootprintSummary;
+    const invalidCombinations = [
+        { recycleAluminumSteelCans: true, reduction: { recycleAluminumSteelCans: true } },
+        { recyclePlastic: true, reduction: { recyclePlastic: true } },
+        { recycleGlass: true, reduction: { recycleGlass: true } },
+        { recycleNewspaper: true, reduction: { recycleNewspaper: true } },
+        { recycleMagazines: true, reduction: { recycleMagazines: true } },
+    ];
 
-        const expectOutput = homeEnergyMocks.defaultCalculationReturnMock;
-        expectOutput.carbonFootprintSummary = mockSummary;
-        
-        emissionFactorsClient.fetchEmissionFactors.mockResolvedValue(mockEmissionFactors);        
-        carbonFootprintRepository.getTotalSummary.mockReturnValue(mockSummary);
-        
-        await expect(homeEnergyService.calculateEmissions(input)).rejects.toThrow("Input data cannot have negative numbers");
-        
-        // Ensure that no further methods are called when input is invalid
-        expect(emissionFactorsClient.fetchEmissionFactors).not.toHaveBeenCalled();
-        expect(carbonFootprintRepository.setSectionSummary).not.toHaveBeenCalled();
-        expect(carbonFootprintRepository.getTotalSummary).not.toHaveBeenCalled();
-    });    
+    invalidCombinations.forEach((input) => {
+        it(`throws an error when recycling and reducing the same item`, async () => {
+            return expect(wasteService.calculateEmissions(input)).rejects.toThrow('Invalid input data. Cannot recycle and reduce the same item');
+        });
+    });
+
+    afterEach(() => {
+        console.error.mockRestore();
+    });
+
+
+    
 });

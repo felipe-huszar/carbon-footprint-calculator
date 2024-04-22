@@ -4,7 +4,12 @@ const { ReductionCommitmentEnum, CarbonFootprintCategory } = require('../../../e
 const  carbonFootprintRepository  = require('../../../infrastructure/repository/carbonFootprintRepository');
 const  utils  = require('../../../utils/utils');
 
-async function generateEmissionsSummary(input) {
+async function generateEmissionsSummary(input) {        
+    const numberOfPeoplehousehold = carbonFootprintRepository.getInitialParameters().numberOfPeoplehousehold;
+
+    if (!numberOfPeoplehousehold) {
+        throw new Error('Initial parameters have not been configured');
+    }
   
     if (utils.hasNegativeValues(input)) {
         throw new Error('Input data cannot have negative numbers');
@@ -19,9 +24,9 @@ async function generateEmissionsSummary(input) {
 
     const calculatedReductions = await calculateReductions(input.reductions, factors.homeEnergy.reduction);
   
-    const totalEmissions = electricityEmissions + naturalGasEmissions + fuelOilEmissions + propaneEmissions;
-    const totalEmissionsDone = totalEmissions - calculatedReductions.totals.reductionsDone;
-    const totalEmissionsPlanned = totalEmissionsDone - calculatedReductions.totals.reductionsPlanned;        
+    const totalEmissions = (electricityEmissions + naturalGasEmissions + fuelOilEmissions + propaneEmissions) * numberOfPeoplehousehold;
+    const totalEmissionsDone = (totalEmissions - calculatedReductions.totals.reductionsDone) * numberOfPeoplehousehold;
+    const totalEmissionsPlanned = (totalEmissionsDone - calculatedReductions.totals.reductionsPlanned) * numberOfPeoplehousehold;        
 
     const sumaryHomeEnergy = {
         currentTotalEmission: totalEmissionsDone,

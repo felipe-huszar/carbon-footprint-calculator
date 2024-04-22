@@ -3,8 +3,7 @@ const { MileageUnit, CarbonFootprintCategory } = require('../../../enums/carbonF
 const  carbonFootprintRepository  = require('../../../infrastructure/repository/carbonFootprintRepository');
 const  utils  = require('../../../utils/utils');
 
-async function calculateEmissions(input) {
-    
+async function calculateEmissions(input) {    
     if (utils.hasNegativeValues(input)) {
         throw new Error('Input data cannot have negative numbers');
     }
@@ -12,6 +11,7 @@ async function calculateEmissions(input) {
     const factors = await fetchEmissionFactors();
 
     const { vehicleEmissions, totalEmission } = await calculateWasteEmissions(input.vehicles, factors.transportation);
+    
 
     const calculatedReductions = await calculateReductions(input.vehicles, factors.transportation);        
     
