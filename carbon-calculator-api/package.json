@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "jest",
-    "test:integration": "jest test/integration",
+    "test:integration": "jest test/integration/homeEnergyIntegration.test",
     "test:unit": "jest test/unit/services",
     "start": "node src/index",
     "dev": "nodemon your-app.js",

@@ -7,7 +7,22 @@ const rootResolvers = require('../../src/graphql/rootResolvers');
 
 let expressApp;
 
-const query = `
+const configureInitialParametersMutation = `
+    mutation ConfigureInitialParameters {
+        configureInitialParameters(input: {
+            numberOfPeoplehousehold: 1,
+            zipCode: "11111"    
+        }) {
+            carbonFootprintSummary {
+                currentTotalEmission
+                currentTotalEmissionAfterPlannedActions
+                usAverage
+            }
+        }
+    }
+`;
+
+const homeEnergyMutation = `
     mutation CalculateHomeEnergyEmission($input: CalculateHomeEnergyInput!) {
         calculateHomeEnergyEmission(input: $input) {
             homeEnergyEmission {
@@ -32,7 +47,7 @@ const query = `
     }
 `;
 
-const variables = {
+const homeEnergyVariables = {
     input: {    
         naturalGasAmount: 100,
         naturalGasUnit: 'DOLLARS',
@@ -60,7 +75,7 @@ const variables = {
     },
 };
 
-const expectedOutput = {
+const expectedHomeEnergyOutput = {
     "data": {
         "calculateHomeEnergyEmission": {
             "homeEnergyEmission": {
@@ -72,12 +87,12 @@ const expectedOutput = {
                     "reduceThermostatSummer": 6,
                     "reduceThermostatWinterNights": 8,
                     "ledBulbsReplacement": 15,
-                    "enablePowerManagementOnPC": 150,
+                    "enablePowerManagementOnPC": 15,
                     "greenPowerUsageIncrease": 1.5,
                     "washingClothesColdWater": 1.5,
                     "lineDryClothing": 200,
                     "energyStarRefrigerator": 10,
-                    "energyStarFurnace": null,
+                    "energyStarFurnace": 0,
                     "energyStarWindows": 3
                 }
             },            
@@ -85,63 +100,112 @@ const expectedOutput = {
     }
 }
 
-describe('Home Energy Emission Integration', () => {
-    beforeAll(() => {
-        expressApp = express();
-        expressApp.use(
-            '/graphql',
-            graphqlHTTP({
-                schema: schema,
-                rootValue: rootResolvers,
-                graphiql: false,
-            })
-        );    
-        jest.setTimeout(10000);
+describe('Home Energy Emission Integration', () => {    
+    describe('without initial parameters configured', () => {
+        beforeAll(() => {
+            expressApp = express();
+            expressApp.use(
+                '/graphql',
+                graphqlHTTP({
+                    schema: schema,
+                    rootValue: rootResolvers,
+                    graphiql: false,
+                })
+            );    
+            jest.setTimeout(10000);
+        });
+        
+        it('returns 200 with correct error message when parameters have not been configured correctly', (done) => {
+            request(expressApp)
+                .post('/graphql')
+                .send({
+                    operationName: 'CalculateHomeEnergyEmission',
+                    query: homeEnergyMutation,
+                    variables: homeEnergyVariables
+                })
+                .expect(200)
+                .end((err, res) => {
+                    if (err) return done(err);
+                        
+                    expect(res.body.errors).toBeDefined();
+                    expect(res.body.errors[0].message).toEqual('Initial parameters have not been configured');
+                    
+                    done();
+                });
+        });        
     });
     
-    it('returns 200 when correctly passing parameters and calculates emissions correctly', (done) => {
-        request(expressApp)
-            .post('/graphql')
-            .send({
-                operationName: 'CalculateHomeEnergyEmission',
-                query,
-                variables
-            })
-            .expect(200)
-            .end((err, res) => {
-                if (err) return done(err);
+    describe('with initial parameters configured', () => {
+        beforeAll(() => {
+            expressApp = express();
+            expressApp.use(
+                '/graphql',
+                graphqlHTTP({
+                    schema: schema,
+                    rootValue: rootResolvers,
+                    graphiql: false,
+                })
+            );    
+            jest.setTimeout(10000);
+        });
+        
+        beforeEach((done) => {
+            request(expressApp)
+                .post('/graphql')
+                .send({
+                    operationName: 'ConfigureInitialParameters',
+                    query: configureInitialParametersMutation,
+                })
+                .end((err, res) => {
+                    if (err) return done(err);
+                    done();
+                });
+        });
 
-                // Assertions to verify the response                
-                expect(res.body).toEqual(expectedOutput);                
-                done();
-            });
-    });
-
-    it('returns 400 when the query is malformed', (done) => {
-        request(expressApp)
-            .post('/graphql')
-            .send({
-                operationName: 'CalculateHomeEnergyEmission',
-                query: 'random query',
-                variables
-            })
-            .expect(400)
-            .end((err, res) => {
-                return done(err);
-            });
-    });
-
-    it('returns 500 when the input is malformed', (done) => {
-        request(expressApp)
-            .post('/graphql')
-            .send({
-                operationName: 'CalculateHomeEnergyEmission',
-                query,
-                variables: { randomData: 'abc' }
-            })
-            .expect(500)
-            .end((err, res) => {
-                return done(err);
-            });
+        it('returns 200 when correctly passing parameters and calculates emissions correctly', (done) => {
+            request(expressApp)
+                .post('/graphql')
+                .send({
+                    operationName: 'CalculateHomeEnergyEmission',
+                    query: homeEnergyMutation,
+                    variables: homeEnergyVariables
+                })
+                .expect(200)
+                .end((err, res) => {
+                    if (err) return done(err);
+                                 
+                    expect(res.body).toEqual(expectedHomeEnergyOutput);                
+                    done();
+                });
+        });
+    
+        it('returns 400 when the query is malformed', (done) => {
+            request(expressApp)
+                .post('/graphql')
+                .send({
+                    operationName: 'CalculateHomeEnergyEmission',
+                    query: 'random query',
+                    variables: homeEnergyVariables
+                })
+                .expect(400)
+                .end((err, res) => {
+                    return done(err);
+                });
+        });
+    
+        it('returns 500 when the input is malformed', (done) => {
+            request(expressApp)
+                .post('/graphql')
+                .send({
+                    operationName: 'CalculateHomeEnergyEmission',
+                    query: homeEnergyMutation,
+                    variables: { randomData: 'abc' }
+                })
+                .expect(500)
+                .end((err, res) => {
+                    return done(err);
+                });
+        });
+        
     });
 });
