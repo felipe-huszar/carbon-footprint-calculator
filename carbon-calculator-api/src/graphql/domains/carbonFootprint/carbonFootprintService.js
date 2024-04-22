@@ -25,7 +25,7 @@ async function configureInitialParameters(input) {
 }
 
 async function generateEmissionsReport(input) {    
-    carbonFootprintRepository.init();
+    carbonFootprintRepository.resetSummary();
     const [homeEnergyEmissions, transportationEmissions, wasteEmissions] = await Promise.all([
         homeEnergyService.calculateEmissions(input.homeEnergyParameters),
         transportationService.calculateEmissions(input.transportationParameters),

@@ -1,3 +1,5 @@
+// Reference document: https://www.epa.gov/system/files/documents/2023-03/ghg_emission_factors_hub.pdf
+
 const defaultEmissionFactors = {
     homeEnergy: {
         electricity: {

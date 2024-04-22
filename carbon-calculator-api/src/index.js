@@ -5,9 +5,9 @@ const rootResolvers = require('./graphql/rootResolvers');
 const cors = require('cors');
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3001;
 
-app.use(cors({ origin: 'http://localhost:3001' }));
+app.use(cors({ origin: 'http://localhost:3000' }));
 
 app.use(
     '/graphql',
