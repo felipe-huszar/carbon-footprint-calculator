@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "jest",
-    "test:integration": "jest test/integration/transportationIntegration.test.js",
+    "test:integration": "jest test/integration/wasteIntegration.test.js",
     "test:unit": "jest test/unit/services",
     "start": "node src/index",
     "dev": "nodemon your-app.js",
