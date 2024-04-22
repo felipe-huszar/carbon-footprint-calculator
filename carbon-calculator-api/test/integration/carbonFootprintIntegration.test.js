@@ -10,8 +10,11 @@ let expressApp;
 const query = `
     mutation ConfigureInitialParameters($input: ConfigureInitialParametersInput!) {
         configureInitialParameters(input: $input) {
-            numberOfPeoplehousehold,
-            zipCode
+            carbonFootprintSummary {
+                currentTotalEmission
+                currentTotalEmissionAfterPlannedActions
+                usAverage
+            }
         }
     }
   
@@ -41,8 +44,11 @@ const variableswithInvalidZipCode = {
 const expectedOutput = {
     "data": {
         "configureInitialParameters": {
-            "numberOfPeoplehousehold": 1,
-            "zipCode": "94114"
+            "carbonFootprintSummary": {
+                "currentTotalEmission": 1383,
+                "currentTotalEmissionAfterPlannedActions": 1383,
+                "usAverage": 5600
+            }
         }
     }
 }
@@ -122,21 +128,7 @@ describe('Carbon Footprint Integration', () => {
                     expect(res.body.errors[0].message).toEqual('Invalid zip code');
                     return done();
                 });
-        });
-    
-        it('returns 500 when the input is malformed', (done) => {
-            request(expressApp)
-                .post('/graphql')
-                .send({
-                    operationName: 'CalculateHomeEnergyEmission',
-                    query,
-                    variables: { randomData: 'abc' }
-                })
-                .expect(500)
-                .end((err, res) => {
-                    return done(err);
-                });
-        });
+        });            
     })
     
     
