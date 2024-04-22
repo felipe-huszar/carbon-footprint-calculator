@@ -7,7 +7,22 @@ const rootResolvers = require('../../src/graphql/rootResolvers');
 
 let expressApp;
 
-const query = `
+const configureInitialParametersMutation = `
+    mutation ConfigureInitialParameters {
+        configureInitialParameters(input: {
+            numberOfPeoplehousehold: 1,
+            zipCode: "11111"    
+        }) {
+            carbonFootprintSummary {
+                currentTotalEmission
+                currentTotalEmissionAfterPlannedActions
+                usAverage
+            }
+        }
+    }
+`;
+
+const transportationMutation = `
     mutation CalculateTransportationEmission($input: CalculateTransportationInput!) {
         calculateTransportationEmission(input: $input) {
             vehicleEmissions
@@ -19,7 +34,7 @@ const query = `
     }
 `;
 
-const variables = { 
+const transportationVariables = { 
     input: {
         vehicles: [
             {
@@ -46,10 +61,10 @@ const variables = {
     }
 };
 
-const expectedOutput = {
+const expectedTransportationOutput = {
     "data": {
         "calculateTransportationEmission": {
-            "vehicleEmissions": [2820780.0000000005, 1409256.0000000002],
+            "vehicleEmissions": [2820780, 1409256],
             "reductions": [
                 {
                     "milesDriven": 170400,
@@ -65,62 +80,107 @@ const expectedOutput = {
 };
 
 describe('Transportation Emission Integration', () => {
-    beforeAll(() => {
-        expressApp = express();
-        expressApp.use(
-            '/graphql',
-            graphqlHTTP({
-                schema: schema,
-                rootValue: rootResolvers,
-                graphiql: false,
-            })
-        );
-        jest.setTimeout(10000);
+    describe('without initial parameters configured', () => {
+        beforeAll(() => {
+            expressApp = express();
+            expressApp.use(
+                '/graphql',
+                graphqlHTTP({
+                    schema: schema,
+                    rootValue: rootResolvers,
+                    graphiql: false,
+                })
+            );    
+            jest.setTimeout(10000);
+        });
+        
+        it('returns 200 without any errors as the parameters are not required for transportation calculation', (done) => {
+            request(expressApp)
+                .post('/graphql')
+                .send({
+                    operationName: 'CalculateTransportationEmission',
+                    query: transportationMutation,
+                    variables: transportationVariables
+                })
+                .expect(200)
+                .end((err, res) => {
+                    if (err) return done(err);
+                    done();
+                });
+        });        
     });
+
+    describe('with initial parameters configured', () => {
+        beforeAll(() => {
+            expressApp = express();
+            expressApp.use(
+                '/graphql',
+                graphqlHTTP({
+                    schema: schema,
+                    rootValue: rootResolvers,
+                    graphiql: false,
+                })
+            );    
+            jest.setTimeout(10000);
+        });
+        
+        beforeEach((done) => {
+            request(expressApp)
+                .post('/graphql')
+                .send({
+                    operationName: 'ConfigureInitialParameters',
+                    query: configureInitialParametersMutation,
+                })
+                .end((err, res) => {
+                    if (err) return done(err);
+                    done();
+                });
+        });
+
+        it('returns 200 when correctly passing parameters and calculates emissions correctly', (done) => {
+            request(expressApp)
+                .post('/graphql')
+                .send({
+                    operationName: 'CalculateTransportationEmission',
+                    query: transportationMutation,
+                    variables: transportationVariables,
+                })
+                .expect(200)
+                .end((err, res) => {
+                    if (err) return done(err);
     
-    it('returns 200 when correctly passing parameters and calculates emissions correctly', (done) => {
-        request(expressApp)
-            .post('/graphql')
-            .send({
-                operationName: 'CalculateTransportationEmission',
-                query,
-                variables,
-            })
-            .expect(200)
-            .end((err, res) => {
-                if (err) return done(err);
-
-                // Assertions to verify the response matches the expected output
-                expect(res.body).toEqual(expectedOutput);
-                done();
-            });
-    });
-
-    it('returns 400 when the query is malformed', (done) => {
-        request(expressApp)
-            .post('/graphql')
-            .send({
-                operationName: 'CalculateTransportationEmission',
-                query: 'random query',
-                variables
-            })
-            .expect(400)
-            .end((err, res) => {
-                return done(err);
-            });
-    });
-
-    it('returns 500 when the input is malformed', (done) => {
-        request(expressApp)
-            .post('/graphql')
-            .send({
-                operationName: 'CalculateTransportationEmission',
-                query,
-                variables: { randomData: 'abc' }
-            })
-            .expect(500)
-            .end((err, res) => {
-                return done(err);
-            });
-    });
+                    // Assertions to verify the response matches the expected output
+                    expect(res.body).toEqual(expectedTransportationOutput);
+                    done();
+                });
+        });
+    
+        it('returns 400 when the query is malformed', (done) => {
+            request(expressApp)
+                .post('/graphql')
+                .send({
+                    operationName: 'CalculateTransportationEmission',
+                    query: 'random query',
+                    variables: transportationVariables
+                })
+                .expect(400)
+                .end((err, res) => {
+                    return done(err);
+                });
+        });
+    
+        it('returns 500 when the input is malformed', (done) => {
+            request(expressApp)
+                .post('/graphql')
+                .send({
+                    operationName: 'CalculateTransportationEmission',
+                    query: transportationMutation,
+                    variables: { randomData: 'abc' }
+                })
+                .expect(500)
+                .end((err, res) => {
+                    return done(err);
+                });
+        });
+    });        
 });
