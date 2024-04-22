@@ -10,7 +10,7 @@ import EmissionsReportPage from './components/summary/EmissionsReportPage';
 import { CalculatorProvider } from './components/contexts/CalculatorContext';
 
 const client = new ApolloClient({
-    uri: 'http://localhost:3000/graphql', // replace with your GraphQL server URI
+    uri: process.env.REACT_APP_GRAPHQL_URI || 'http://localhost:3001/graphql', 
     cache: new InMemoryCache(),
 });
 
