@@ -87,9 +87,12 @@ const defaultEmissionFactors = {
             recyclingNewspaper: 4, // CO2e = 0.2 * 2000
         },
     },
+    usAverages: {
+        homeEnergy: 2667,
+        transportation: 2645,
+        waste: 580,
+    }
 };
-
-
 
 const fetchEmissionFactors = async (zipCode) => {
     const regionEmissionFactors = {

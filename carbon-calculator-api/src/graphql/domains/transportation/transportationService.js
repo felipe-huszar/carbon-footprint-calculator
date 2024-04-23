@@ -3,7 +3,7 @@ const { MileageUnit, CarbonFootprintCategory } = require('../../../enums/carbonF
 const  carbonFootprintRepository  = require('../../../infrastructure/repository/carbonFootprintRepository');
 const  utils  = require('../../../utils/utils');
 
-async function calculateEmissions(input) {    
+async function calculateEmissions(input, reusesSummary = true) {    
     if (utils.hasNegativeValues(input)) {
         throw new Error('Input data cannot have negative numbers');
     }
@@ -18,16 +18,21 @@ async function calculateEmissions(input) {
     const totalEmissionsDone = totalEmission - calculatedReductions.totals.reductionsDone;
     const totalEmissionsPlanned = totalEmissionsDone - calculatedReductions.totals.reductionsPlanned;
 
-    const summaryTransportation = {
+    let summaryTransportation = utils.roundDeep({
         currentTotalEmission: totalEmission,
-        currentTotalEmissionAfterPlannedActions: totalEmissionsPlanned
-    }    
+        currentTotalEmissionAfterPlannedActions: totalEmissionsPlanned,
+        usAverage: factors.usAverages.transportation,
+    });        
 
     carbonFootprintRepository.setSectionSummary(CarbonFootprintCategory.TRANSPORTATION, summaryTransportation);
 
     const transportationEmissionOutput = utils.roundDeep(vehicleEmissions);
-    const carbonFootprintSummaryOutput = utils.roundDeep(carbonFootprintRepository.getTotalSummary());
     const reductionsOutput = utils.roundDeep(calculatedReductions.vehicleReductionsPlanned);
+    
+    let carbonFootprintSummaryOutput = summaryTransportation
+    if (reusesSummary) {
+        carbonFootprintSummaryOutput = utils.roundDeep(carbonFootprintRepository.getTotalSummary());
+    }    
 
     return {        
         vehicleEmissions: transportationEmissionOutput,

@@ -14,7 +14,7 @@ async function configureInitialParameters(input) {
     }
    
     carbonFootprintRepository.init();
-    carbonFootprintRepository.setInitialParameters(input.numberOfPeoplehousehold, input.zipCode);
+    await carbonFootprintRepository.setInitialParameters(input.numberOfPeoplehousehold, input.zipCode);
     await wasteService.configureInitialWasteEmission(input.numberOfPeoplehousehold);
     
     const carbonFootprintSummary = utils.roundDeep(carbonFootprintRepository.getTotalSummary());
@@ -27,18 +27,9 @@ async function configureInitialParameters(input) {
 async function generateEmissionsReport(input) {    
     carbonFootprintRepository.resetSummary();
     const [homeEnergyEmissions, transportationEmissions, wasteEmissions] = await Promise.all([
-        (async () => {
-            carbonFootprintRepository.resetSummary();
-            return await homeEnergyService.calculateEmissions(input.homeEnergyParameters);
-        })(),
-        (async () => {
-            carbonFootprintRepository.resetSummary();
-            return await transportationService.calculateEmissions(input.transportationParameters);
-        })(),
-        (async () => {
-            carbonFootprintRepository.resetSummary();
-            return await wasteService.calculateEmissions(input.wasteParameters);
-        })(),        
+        homeEnergyService.calculateEmissions(input.homeEnergyParameters, false),
+        transportationService.calculateEmissions(input.transportationParameters, false),
+        wasteService.calculateEmissions(input.wasteParameters, false),
     ]);
     
     let totalSumary = await calculateTotalEmissions([

@@ -3,7 +3,7 @@ const { CarbonFootprintCategory } = require('../../../enums/carbonFootprintEnums
 const  carbonFootprintRepository  = require('../../../infrastructure/repository/carbonFootprintRepository');
 const  utils  = require('../../../utils/utils');
 
-async function calculateEmissions(input) {
+async function calculateEmissions(input, reusesSummary = true) {
     const numberOfPeoplehousehold = carbonFootprintRepository.getInitialParameters().numberOfPeoplehousehold;
 
     if (!numberOfPeoplehousehold) {
@@ -27,14 +27,18 @@ async function calculateEmissions(input) {
     const totalEmissionDone = totalEmission - totalReductionsDone;
     const totalEmissionPlanned = totalEmissionDone - totalReductionsPlanned;
 
-    const summaryTransportation = {
+    const summaryWaste = {
         currentTotalEmission: totalEmissionDone,
-        currentTotalEmissionAfterPlannedActions:  totalEmissionPlanned,        
+        currentTotalEmissionAfterPlannedActions:  totalEmissionPlanned,      
+        usAverage: factors.usAverages.waste,  
     }
     
-    carbonFootprintRepository.setSectionSummary(CarbonFootprintCategory.WASTE, summaryTransportation);
+    carbonFootprintRepository.setSectionSummary(CarbonFootprintCategory.WASTE, summaryWaste);
 
-    const carbonFootprintSummary = utils.roundDeep(carbonFootprintRepository.getTotalSummary()); 
+    let carbonFootprintSummary = summaryWaste;
+    if(reusesSummary) {
+        carbonFootprintSummary = utils.roundDeep(carbonFootprintRepository.getTotalSummary()); 
+    }
 
     return {        
         waste: {
@@ -94,11 +98,13 @@ async function getAverageWaste(numberOfPersons) {
 
 async function configureInitialWasteEmission(numberOfPeoplehousehold) {
     const averageWaste = await getAverageWaste(numberOfPeoplehousehold);
-    
-    const sumaryWaste = {
+    const factors = await fetchEmissionFactors();
+
+    let sumaryWaste = utils.roundDeep({
         currentTotalEmission: averageWaste,
         currentTotalEmissionAfterPlannedActions: averageWaste,
-    }
+        usAverage: factors.usAverages.waste,
+    });    
 
     carbonFootprintRepository.setSectionSummary(CarbonFootprintCategory.WASTE, sumaryWaste);
 }

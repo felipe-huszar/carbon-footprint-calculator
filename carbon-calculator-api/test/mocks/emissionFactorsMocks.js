@@ -64,6 +64,11 @@ const emissionFactors = {
             recyclingNewspaper: 226
         },
     },
+    usAverages: {
+        homeEnergy: 2667,
+        transportation: 2645,
+        waste: 580,
+    }
 };
 
 module.exports = { emissionFactors };

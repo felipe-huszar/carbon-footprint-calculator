@@ -47,7 +47,7 @@ const expectedOutput = {
             "carbonFootprintSummary": {
                 "currentTotalEmission": 692,
                 "currentTotalEmissionAfterPlannedActions": 692,
-                "usAverage": 5892
+                "usAverage": 580
             }
         }
     }

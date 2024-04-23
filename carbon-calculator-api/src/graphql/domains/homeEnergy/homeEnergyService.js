@@ -4,7 +4,7 @@ const { ReductionCommitmentEnum, CarbonFootprintCategory } = require('../../../e
 const  carbonFootprintRepository  = require('../../../infrastructure/repository/carbonFootprintRepository');
 const  utils  = require('../../../utils/utils');
 
-async function calculateEmissions(input) {        
+async function calculateEmissions(input, reusesSummary = true) {        
     const numberOfPeoplehousehold = carbonFootprintRepository.getInitialParameters().numberOfPeoplehousehold;
 
     if (!numberOfPeoplehousehold) {
@@ -28,10 +28,11 @@ async function calculateEmissions(input) {
     const totalEmissionsDone = (totalEmissions - calculatedReductions.totals.reductionsDone) * numberOfPeoplehousehold;
     const totalEmissionsPlanned = (totalEmissionsDone - calculatedReductions.totals.reductionsPlanned) * numberOfPeoplehousehold;        
 
-    const sumaryHomeEnergy = {
+    const sumaryHomeEnergy = utils.roundDeep({
         currentTotalEmission: totalEmissionsDone,
         currentTotalEmissionAfterPlannedActions: totalEmissionsPlanned,
-    };
+        usAverage: factors.usAverages.homeEnergy,
+    });    
 
     const homeEnergyEmission = {
         naturalGas: naturalGasEmissions,
@@ -44,7 +45,10 @@ async function calculateEmissions(input) {
     carbonFootprintRepository.setSectionSummary(CarbonFootprintCategory.HOME_ENERGY, sumaryHomeEnergy);
 
     const homeEnergyEmissionOutput = utils.roundDeep(homeEnergyEmission);
-    const carbonFootprintSummaryOutput = utils.roundDeep(carbonFootprintRepository.getTotalSummary());
+    
+    let carbonFootprintSummaryOutput = sumaryHomeEnergy;
+    
+    if(reusesSummary) carbonFootprintSummaryOutput = utils.roundDeep(carbonFootprintRepository.getTotalSummary());
 
     return {        
         homeEnergyEmission: homeEnergyEmissionOutput,

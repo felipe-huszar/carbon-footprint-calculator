@@ -1,49 +1,45 @@
 const { CarbonFootprintCategory } = require('../../enums/carbonFootprintEnums');
+const { fetchEmissionFactors } = require('../../infrastructure/client/emissionFactorsClient');
 
-const usAverage = {
-    homeEnergy: 2667,
-    transportation: 2645,
-    waste: 580,
-}
 
 class CarbonFootprintRepository {
-    constructor() {
+    constructor() {                
         this.init();
     }
 
     init() {
+        const factors = this.factors;
         this.store = {
             sections: {
-                [CarbonFootprintCategory.HOME_ENERGY]: { currentTotalEmission: 0, currentTotalEmissionAfterPlannedActions: 0, usAverage: usAverage.homeEnergy },
-                [CarbonFootprintCategory.TRANSPORTATION]: { currentTotalEmission: 0, currentTotalEmissionAfterPlannedActions: 0, usAverage: usAverage.transportation },
-                [CarbonFootprintCategory.WASTE]: { currentTotalEmission: 0, currentTotalEmissionAfterPlannedActions: 0, usAverage: usAverage.waste },
+                [CarbonFootprintCategory.HOME_ENERGY]: { currentTotalEmission: 0, currentTotalEmissionAfterPlannedActions: 0, usAverage: 0 },
+                [CarbonFootprintCategory.TRANSPORTATION]: { currentTotalEmission: 0, currentTotalEmissionAfterPlannedActions: 0, usAverage: 0 },
+                [CarbonFootprintCategory.WASTE]: { currentTotalEmission: 0, currentTotalEmissionAfterPlannedActions: 0, usAverage: 0 },
             },            
             initialConfig: { numberOfPeoplehousehold: 0, zipCode: '' },
         };
     }
 
-    resetSummary() {
+    resetSummary() {        
         this.store.sections = {
-            [CarbonFootprintCategory.HOME_ENERGY]: { currentTotalEmission: 0, currentTotalEmissionAfterPlannedActions: 0, usAverage: usAverage.homeEnergy },
-            [CarbonFootprintCategory.TRANSPORTATION]: { currentTotalEmission: 0, currentTotalEmissionAfterPlannedActions: 0, usAverage: usAverage.transportation },
-            [CarbonFootprintCategory.WASTE]: { currentTotalEmission: 0, currentTotalEmissionAfterPlannedActions: 0, usAverage: usAverage.waste },
+            [CarbonFootprintCategory.HOME_ENERGY]: { currentTotalEmission: 0, currentTotalEmissionAfterPlannedActions: 0, usAverage: 0 },
+            [CarbonFootprintCategory.TRANSPORTATION]: { currentTotalEmission: 0, currentTotalEmissionAfterPlannedActions: 0, usAverage: 0 },
+            [CarbonFootprintCategory.WASTE]: { currentTotalEmission: 0, currentTotalEmissionAfterPlannedActions: 0, usAverage: 0 },
         };                        
     }
 
     static getInstance() {
-        if (!this.instance) {
+        if (!this.instance) {            
             this.instance = new CarbonFootprintRepository();
         }
         return this.instance;
     }
 
     setSectionSummary(section, summary) {
-        this.store.sections[section].currentTotalEmission = summary.currentTotalEmission;
-        this.store.sections[section].currentTotalEmissionAfterPlannedActions = summary.currentTotalEmissionAfterPlannedActions;
+        this.store.sections[section] = summary            
     }
 
-    setInitialParameters(numberOfPeoplehousehold, zipCode) {
-        this.store.initialConfig = { numberOfPeoplehousehold, zipCode };
+    async setInitialParameters(numberOfPeoplehousehold, zipCode) {
+        this.store.initialConfig = { numberOfPeoplehousehold, zipCode };        
     }
 
     getSectionSummary(section) {
@@ -72,5 +68,4 @@ class CarbonFootprintRepository {
 }
 
 const instance = CarbonFootprintRepository.getInstance();
-
 module.exports = instance;
