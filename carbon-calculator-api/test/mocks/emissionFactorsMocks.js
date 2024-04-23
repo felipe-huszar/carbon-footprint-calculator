@@ -57,7 +57,7 @@ const emissionFactors = {
             perPerson: 1383
         },
         reduction: {
-            recyclingAlumnium: 55,
+            recyclingAluminum: 55,
             recyclingPlastic: 71,
             recyclingGlass: 51,
             recyclingMagazine: 55,

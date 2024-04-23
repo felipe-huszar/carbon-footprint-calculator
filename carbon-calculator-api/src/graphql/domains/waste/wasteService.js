@@ -34,13 +34,15 @@ async function calculateEmissions(input) {
     
     carbonFootprintRepository.setSectionSummary(CarbonFootprintCategory.WASTE, summaryTransportation);
 
+    const carbonFootprintSummary = utils.roundDeep(carbonFootprintRepository.getTotalSummary()); 
+
     return {        
         waste: {
             wasteRecycling: totalReductionsDone,
             emissionAfterRecycling: totalEmissionDone,
             wasteReduction: totalReductionsPlanned,
         },
-        carbonFootprintSummary: carbonFootprintRepository.getTotalSummary(),
+        carbonFootprintSummary
     };
 }
 
@@ -50,9 +52,9 @@ async function calculateWasteEmissions(input, factors, numberOfPersons) {
     let totalReductionsPlanned = 0;
 
     if(input.recycleAluminumSteelCans) {
-        totalReductionsDone += factors.reduction.recyclingAlumnium
+        totalReductionsDone += factors.reduction.recyclingAluminum
     } else if(input.reduction.recycleAluminumSteelCans) {
-        totalReductionsPlanned += factors.reduction.recyclingAlumnium
+        totalReductionsPlanned += factors.reduction.recyclingAluminum
     }
     if(input.recyclePlastic) {
         totalReductionsDone += factors.reduction.recyclingPlastic

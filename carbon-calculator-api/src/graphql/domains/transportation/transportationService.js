@@ -27,7 +27,7 @@ async function calculateEmissions(input) {
 
     const transportationEmissionOutput = utils.roundDeep(vehicleEmissions);
     const carbonFootprintSummaryOutput = utils.roundDeep(carbonFootprintRepository.getTotalSummary());
-    const reductionsOutput = utils.roundDeep(calculatedReductions.vahicleReductionsPlanned);
+    const reductionsOutput = utils.roundDeep(calculatedReductions.vehicleReductionsPlanned);
 
     return {        
         vehicleEmissions: transportationEmissionOutput,
@@ -59,15 +59,28 @@ async function calculateWasteEmissions(vehicles, factors) {
 }
 
 async function calculateReductions(vehicles, factors) {
-    let vahicleReductionsPlanned = [];
+    let vehicleReductionsPlanned = [];
     let totalReductionPlanned = 0;
-    for(vehicle of vehicles) {
-        const periodicityFactor = vehicle.reduction.reducedMilesUnit === MileageUnit.MILES_PER_YEAR ? 12 : 1
-        const milesReduction = vehicle.reduction.reducedMiles * factors.perGasMile * periodicityFactor;  
-        const vehicleReplacementReduction = vehicle.reduction.milesperGaloonVehicleReplacement * factors.perGasMile * periodicityFactor;
+
+    for (const vehicle of vehicles) {
+        // Determine the periodicity factor based on whether the reduction is reported annually or monthly.
+        const periodicityFactor = vehicle.reduction.reducedMilesUnit === MileageUnit.MILES_PER_YEAR ? 1 : 12;
+
+        // Calculate the emissions reduction from reduced miles driven.
+        const milesReduction = vehicle.reduction.reducedMiles * factors.perGasMile / periodicityFactor;
+
+        // Use the current gas mileage provided for each vehicle and the proposed new MPG from the reduction section.
+        const oldMPG = vehicle.gasMileage;
+        const newMPG = vehicle.reduction.milesperGaloonVehicleReplacement;
+
+        // Calculate the vehicle replacement reduction if a new MPG is provided.
+        const vehicleReplacementReduction = newMPG && oldMPG ? 
+            (1 - (oldMPG / newMPG)) * vehicle.milesDriven * factors.perGasMile
+            : 0;
+
         const plannedReduction = milesReduction + vehicleReplacementReduction;
         
-        vahicleReductionsPlanned.push({ 
+        vehicleReductionsPlanned.push({ 
             milesDriven: milesReduction, 
             replacedVehicle: vehicleReplacementReduction
         });
@@ -75,11 +88,10 @@ async function calculateReductions(vehicles, factors) {
     }
   
     return {   
-        vahicleReductionsPlanned,      
+        vehicleReductionsPlanned,      
         totals: {
             reductionsDone: 0,
             reductionsPlanned: totalReductionPlanned
-            
         }
     };
 }

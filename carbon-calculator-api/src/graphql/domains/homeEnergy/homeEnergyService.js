@@ -4,7 +4,7 @@ const { ReductionCommitmentEnum, CarbonFootprintCategory } = require('../../../e
 const  carbonFootprintRepository  = require('../../../infrastructure/repository/carbonFootprintRepository');
 const  utils  = require('../../../utils/utils');
 
-async function generateEmissionsSummary(input) {        
+async function calculateEmissions(input) {        
     const numberOfPeoplehousehold = carbonFootprintRepository.getInitialParameters().numberOfPeoplehousehold;
 
     if (!numberOfPeoplehousehold) {
@@ -194,5 +194,5 @@ async function calculateReductions(input, factors) {
 }
 
 module.exports = {
-    calculateEmissions: generateEmissionsSummary
+    calculateEmissions
 };

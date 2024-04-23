@@ -79,23 +79,23 @@ const expectedHomeEnergyOutput = {
     "data": {
         "calculateHomeEnergyEmission": {
             "homeEnergyEmission": {
-                "naturalGas": 380,
-                "electricity": 960,
+                "naturalGas": 1124,
+                "electricity": 426.15,
                 "fuelOil": 4480,
                 "propane": 1905,
                 "reductions": {
-                    "reduceThermostatSummer": 6,
-                    "reduceThermostatWinterNights": 8,
-                    "ledBulbsReplacement": 15,
-                    "enablePowerManagementOnPC": 15,
-                    "greenPowerUsageIncrease": 1.5,
-                    "washingClothesColdWater": 1.5,
-                    "lineDryClothing": 200,
-                    "energyStarRefrigerator": 10,
+                    "reduceThermostatSummer": 60,
+                    "reduceThermostatWinterNights": 40,
+                    "ledBulbsReplacement": 820,
+                    "enablePowerManagementOnPC": 50,
+                    "greenPowerUsageIncrease": 5000,
+                    "washingClothesColdWater": 1.95,
+                    "lineDryClothing": 100,
+                    "energyStarRefrigerator": 60,
                     "energyStarFurnace": 0,
-                    "energyStarWindows": 3
+                    "energyStarWindows": 150
                 }
-            },            
+            }
         }
     }
 }

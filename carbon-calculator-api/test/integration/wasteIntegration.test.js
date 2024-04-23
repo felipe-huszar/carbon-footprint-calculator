@@ -55,12 +55,12 @@ const expectedWasteOutput = {
     "data": {
         "calculateWasteEmission": {
             "waste": {
-                "wasteRecycling": 403,
-                "emissionAfterRecycling": 577,
-                "wasteReduction": 55
-            },
+                "wasteRecycling": 72,
+                "emissionAfterRecycling": 548,
+                "wasteReduction": 4
+            }
         }
-    }    
+    }
 };
 
 describe('Waste Emission Integration', () => {

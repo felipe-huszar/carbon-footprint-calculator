@@ -1,5 +1,11 @@
 const { CarbonFootprintCategory } = require('../../enums/carbonFootprintEnums');
 
+const usAverage = {
+    homeEnergy: 2667,
+    transportation: 2645,
+    waste: 580,
+}
+
 class CarbonFootprintRepository {
     constructor() {
         this.init();
@@ -8,9 +14,9 @@ class CarbonFootprintRepository {
     init() {
         this.store = {
             sections: {
-                [CarbonFootprintCategory.HOME_ENERGY]: { currentTotalEmission: 0, currentTotalEmissionAfterPlannedActions: 0, usAverage: 2900 },
-                [CarbonFootprintCategory.TRANSPORTATION]: { currentTotalEmission: 0, currentTotalEmissionAfterPlannedActions: 0, usAverage: 1500 },
-                [CarbonFootprintCategory.WASTE]: { currentTotalEmission: 0, currentTotalEmissionAfterPlannedActions: 0, usAverage: 1200 },
+                [CarbonFootprintCategory.HOME_ENERGY]: { currentTotalEmission: 0, currentTotalEmissionAfterPlannedActions: 0, usAverage: usAverage.homeEnergy },
+                [CarbonFootprintCategory.TRANSPORTATION]: { currentTotalEmission: 0, currentTotalEmissionAfterPlannedActions: 0, usAverage: usAverage.transportation },
+                [CarbonFootprintCategory.WASTE]: { currentTotalEmission: 0, currentTotalEmissionAfterPlannedActions: 0, usAverage: usAverage.waste },
             },            
             initialConfig: { numberOfPeoplehousehold: 0, zipCode: '' },
         };
@@ -18,9 +24,9 @@ class CarbonFootprintRepository {
 
     resetSummary() {
         this.store.sections = {
-            [CarbonFootprintCategory.HOME_ENERGY]: { currentTotalEmission: 0, currentTotalEmissionAfterPlannedActions: 0, usAverage: 2900 },
-            [CarbonFootprintCategory.TRANSPORTATION]: { currentTotalEmission: 0, currentTotalEmissionAfterPlannedActions: 0, usAverage: 1500 },
-            [CarbonFootprintCategory.WASTE]: { currentTotalEmission: 0, currentTotalEmissionAfterPlannedActions: 0, usAverage: 1200 },
+            [CarbonFootprintCategory.HOME_ENERGY]: { currentTotalEmission: 0, currentTotalEmissionAfterPlannedActions: 0, usAverage: usAverage.homeEnergy },
+            [CarbonFootprintCategory.TRANSPORTATION]: { currentTotalEmission: 0, currentTotalEmissionAfterPlannedActions: 0, usAverage: usAverage.transportation },
+            [CarbonFootprintCategory.WASTE]: { currentTotalEmission: 0, currentTotalEmissionAfterPlannedActions: 0, usAverage: usAverage.waste },
         };                        
     }
 

@@ -64,17 +64,20 @@ const transportationVariables = {
 const expectedTransportationOutput = {
     "data": {
         "calculateTransportationEmission": {
-            "vehicleEmissions": [2820780, 1409256],
+            "vehicleEmissions": [
+                99462,
+                49802.4
+            ],
             "reductions": [
                 {
-                    "milesDriven": 170400,
-                    "replacedVehicle": 5112
+                    "milesDriven": 1030,
+                    "replacedVehicle": 2060
                 },
                 {
-                    "milesDriven": 51120,
-                    "replacedVehicle": 5964
+                    "milesDriven": 309,
+                    "replacedVehicle": 882.86
                 }
-            ],
+            ]            
         }
     }
 };

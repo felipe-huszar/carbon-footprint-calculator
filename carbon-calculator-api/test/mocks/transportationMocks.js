@@ -29,17 +29,17 @@ const defaultCalculationReturnMock = {
     vehicleEmissions: [8520, 21576],
     reductions: [
         {
-            milesDriven: 8520,
-            replacedVehicle: 8520,
+            milesDriven: 710,
+            replacedVehicle: 0,
         },
         {
-            milesDriven: 5112,
-            replacedVehicle: 25560,
+            milesDriven: 426,
+            replacedVehicle: 1136,
         },
     ],
     carbonFootprintSummary: {
         currentTotalEmission: 30096,
-        currentTotalEmissionAfterPlannedActions: -17616,
+        currentTotalEmissionAfterPlannedActions: 11123,
         usAverage: 5600,
     },
 };
